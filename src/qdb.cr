@@ -1,46 +1,53 @@
 require "sqlite3"
 
-# why
-
 class QDB
+  def self.open(directory, name, retry_attempts, retry_delay) : self
+    new directory, name, retry_attempts, retry_delay
+  end
 
-    @database = uninitialized DB::Database
+  def self.open(directory, name) : self
+    new directory, name
+  end
 
-    def database
-        @database
-    end
+  getter database : DB::Database { DB.open "sqlite3://#{@directory}/#{@name}?retry_attempts=#{@retry_attempts}&retry_delay=#{@retry_delay}" }
 
-    def exec(argument : String)
-        return @database.exec(argument)
-    end
+  @directory : String
+  @name : String
+  @retry_attempts : Int32
+  @retry_delay : Int32
 
-    def createTable(name, collumns)
-        begin
-            return @database.exec("create table #{name} ( #{collumns} )")
-        rescue exception
-            return "Couldn't process: #{self}"
-        end
-    end
-    
-    def deleteTable(table)
-        return @database.exec("delete table #{table}")
-    end
+  def initialize(@directory : String, @name : String, @retry_attempts : Int32 = 1, @retry_delay : Int32 = 1)
+  end
 
-    def selAllFrom(table) 
-        return @database.query("select * from #{table}")
+  def exec(argument : String)
+    begin
+      self.database.exec(argument)
+    rescue exception
+      return puts "Couldn't process command."
     end
+  end
 
-    def selFrom(item, table) 
-        return @database.query("select #{item} from #{table}")
+  def createTable(name, collumns)
+    begin
+      self.database.exec("create table #{name} ( #{collumns} )")
+    rescue exception
+      return puts "Couldn't process table creation."
     end
+  end
 
-    def open(directory, name) 
-        @database = DB.open "sqlite3://#{directory}/#{name}" 
-    end
+  def deleteTable(table)
+    self.database.exec("delete table #{table}")
+  end
 
-    def open(directory, name, retryAttempts, retryDelay) 
-        @database = DB.open "sqlite3://#{directory}/#{name}?retry_attempts=#{retryAttempts}&retry_delay=#{retryDelay}" 
-    end
-    
-    def close () ( @database.close ) end
+  def selAllFrom(table)
+    self.database.query("select * from #{table}")
+  end
+
+  def selFrom(item, table)
+    self.database.query("select #{item} from #{table}")
+  end
+
+  def close
+    self.database.close
+  end
 end
