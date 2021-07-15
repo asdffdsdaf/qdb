@@ -1,4 +1,7 @@
 require "sqlite3"
+require "db"
+
+# a
 
 class QDB
   def self.open(directory, name, retry_attempts, retry_delay) : self
@@ -27,27 +30,43 @@ class QDB
     end
   end
 
-  def createTable(name, collumns)
+  def createTable(name, collumns : Array)
     begin
-      self.database.exec("create table #{name} ( #{collumns} )")
+      self.database.exec "create table #{name} (#{collumns.join(", ")})"
     rescue exception
-      return puts "Couldn't process table creation."
+      return puts "Table error"
     end
   end
 
   def deleteTable(table)
-    self.database.exec("delete table #{table}")
+    begin
+      self.database.exec("delete table #{table}")
+    rescue exception
+      return puts "Table was not deleted"
+    end
   end
 
   def selAllFrom(table)
-    self.database.query("select * from #{table}")
+    begin
+      self.database.query("select * from #{table}")
+    rescue exception
+      return puts "Selection error"
+    end
   end
 
   def selFrom(item, table)
-    self.database.query("select #{item} from #{table}")
+    begin
+      self.database.query("select #{item} from #{table}")
+    rescue exception
+      return puts "Selection error"
+    end
   end
 
   def close
-    self.database.close
+    begin
+      self.database.close
+    rescue exception
+      return puts "AAAAAAAAAAAAAAAAAAA"
+    end
   end
 end
