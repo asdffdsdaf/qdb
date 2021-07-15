@@ -1,0 +1,13 @@
+name: qdb
+version: 0.0.1
+
+authors:
+  - asdffdsdaf
+
+dependencies:
+  sqlite3:
+    github: crystal-lang/crystal-sqlite3
+
+crystal: 1.1.0-dev
+
+license: MIT
